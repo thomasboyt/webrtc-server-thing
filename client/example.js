@@ -12,8 +12,8 @@ const vm = new Vue({
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 const squareSize = 10;
-// const maxPackets = (canvas.width / squareSize) * (canvas.height / squareSize);
-const maxPackets = 100;
+const maxPackets = (canvas.width / squareSize) * (canvas.height / squareSize);
+// const maxPackets = 100;
 
 function updateNode(idx, style) {
   ctx.fillStyle = style;
