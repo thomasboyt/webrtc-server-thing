@@ -7,34 +7,35 @@ async function main() {
     ],
   });
 
+  const pendingCandidates = [];
+
   peer.onicecandidate = (evt) => {
     if (evt.candidate) {
-      console.log('received candidate', evt.candidate);
+      console.log('on ice candidate');
+      pendingCandidates.push(evt.candidate);
     }
   };
 
   peer.ondatachannel = (evt) => {
     console.log('peer connection on data channel');
-    console.log(evt);
+    console.log(evt.channel);
   };
 
   const channel = peer.createDataChannel('channel', {
-    ordered: false,
-    maxRetransmits: 0,
+    // ordered: false,
+    // maxRetransmits: 0,
   });
-
   channel.binaryType = 'arraybuffer';
 
   channel.onopen = function() {
     console.log('data channel ready');
-    socket.open = true;
-    if (typeof socket.onopen == 'function') {
-      socket.onopen();
-    }
+
+    setInterval(() => {
+      channel.send('ping');
+    }, 1000);
   };
 
   channel.onclose = function() {
-    this.open = false;
     console.log('data channel closed');
   };
 
@@ -43,38 +44,50 @@ async function main() {
   };
 
   channel.onmessage = function(evt) {
-    if (typeof socket.onmessage == 'function') {
-      socket.onmessage(evt);
+    if (evt.data === 'pong') {
+      console.log('* pong');
     }
   };
+
+  async function handleAnswer(msg) {
+    await peer.setRemoteDescription(new RTCSessionDescription(msg.answer));
+  }
+
+  async function handleCandidate(msg) {
+    const candidate = new RTCIceCandidate(msg.candidate);
+    await peer.addIceCandidate(candidate);
+  }
 
   const offer = await peer.createOffer();
   await peer.setLocalDescription(offer);
 
-  // console.log('sending offer');
-  // const resp = await fetch('/connect', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //   },
-  //   body: JSON.stringify({
-  //     offer,
-  //   }),
-  // });
+  const ws = new WebSocket(`ws://${document.location.host}`);
 
-  // if (resp.status !== 200) {
-  //   throw new Error(resp);
-  // }
+  ws.onopen = () => {
+    console.log('opened socket');
 
-  // const body = await resp.json();
+    ws.send(JSON.stringify({ type: 'offer', offer }));
 
-  // console.log('setting description');
-  // await peer.setRemoteDescription(new RTCSessionDescription(body.answer));
+    for (let candidate of pendingCandidates) {
+      ws.send(JSON.stringify({ type: 'candidate', candidate }));
+    }
+  };
 
-  // console.log('adding ice candidate');
-  // let candidate = new RTCIceCandidate(body.candidate);
-  // await peer.addIceCandidate(candidate);
-  // console.log('add ice candidate success');
+  ws.onmessage = (evt) => {
+    const msg = JSON.parse(evt.data);
+
+    if (msg.error) {
+      throw new Error(`ws error: ${msg.error}`);
+    }
+
+    if (msg.type === 'answer') {
+      handleAnswer(msg);
+    } else if (msg.type === 'candidate') {
+      handleCandidate(msg);
+    } else {
+      throw new Error(`unrecognized ws message type ${msg.type}`);
+    }
+  };
 }
 
 main();
