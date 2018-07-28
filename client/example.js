@@ -23,13 +23,16 @@ const pong = (id) => {
 
 const channel = new DataChannel();
 
-channel.onopen = () => {
+channel.onopen = async () => {
   setInterval(() => {
     for (let i = 0; i < 10; i += 1) {
       const id = ping();
       channel.send(`ping ${id}`);
     }
   }, 100);
+
+  const protocol = await channel.getConnectionProtocol();
+  console.log(protocol);
 };
 
 channel.onmessage = (evt) => {

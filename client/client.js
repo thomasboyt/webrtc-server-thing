@@ -19,6 +19,24 @@ export default class DataConnection {
     this._createChannel();
   }
 
+  async getConnectionProtocol() {
+    const stats = await this._peer.getStats();
+    const connectionPairs = [...stats.values()]
+      .filter((entry) => entry.type === 'candidate-pair')
+      .filter((entry) => entry.state === 'succeeded');
+
+    if (connectionPairs.length !== 1) {
+      console.log('too many or too few connection pairs');
+      console.log(connectionPairs);
+      throw new Error();
+    }
+
+    const pair = connectionPairs[0];
+    const remote = stats.get(pair.remoteCandidateId);
+
+    return remote.protocol;
+  }
+
   async connect() {
     const offer = await this._peer.createOffer();
     await this._peer.setLocalDescription(offer);
