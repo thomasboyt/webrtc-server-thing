@@ -49,10 +49,7 @@ export default class DataConnection {
   }
 
   _createChannel(name, config) {
-    const channel = this._peer.createDataChannel('channel', {
-      ordered: false,
-      maxRetransmits: 0,
-    });
+    const channel = this._peer.createDataChannel('channel', config);
 
     channel.binaryType = 'arraybuffer';
 
