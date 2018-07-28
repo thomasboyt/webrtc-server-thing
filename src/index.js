@@ -3,8 +3,6 @@ const wrtc = require('wrtc');
 const WebSocket = require('ws');
 const express = require('express');
 
-const asyncHandler = require('./asyncHandler');
-
 const app = express();
 
 const PORT = process.env.PORT || 3000;
