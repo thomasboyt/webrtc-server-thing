@@ -72,7 +72,7 @@ co.channels.unreliable.onmessage = (evt) => {
   if (typeof evt.data === 'string') {
     const [cmd, id] = evt.data.split(' ');
     if (cmd === 'pong') {
-      pong(id);
+      pong(parseInt(id));
     }
   }
 };
