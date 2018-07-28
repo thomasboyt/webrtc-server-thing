@@ -16,12 +16,8 @@
     <p>Your connection protocol is <strong>{{protocol}}</strong>. If you're on TCP, this demo presumedly will not work and you'll just have TCP-like semantics instead.</p>
 
     <p>Sent pings: {{pingCount}}</p>
-
-    <p>Missing pings: </p>
-
-    <li v-for="(value, key) of outstandingPings">
-      {{key}}
-    </li>
   </div>
+
+  <canvas id="canvas" width="600" height="300"></canvas>
 </body>
 </html>
