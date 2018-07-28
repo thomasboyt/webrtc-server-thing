@@ -16,7 +16,12 @@ export default class DataConnection {
       }
     };
 
-    this._createChannel();
+    this.channels = {};
+    this._createChannel('reliable');
+    this._createChannel('unreliable', {
+      ordered: false,
+      maxRetransmits: 0,
+    });
   }
 
   async getConnectionProtocol() {
@@ -43,24 +48,17 @@ export default class DataConnection {
     this._createWebSocket(offer);
   }
 
-  send(msg) {
-    this._channel.send(msg);
-  }
-
-  _createChannel() {
+  _createChannel(name, config) {
     const channel = this._peer.createDataChannel('channel', {
       ordered: false,
       maxRetransmits: 0,
     });
-    this._channel = channel;
 
     channel.binaryType = 'arraybuffer';
 
     channel.onopen = () => {
       console.log('data channel ready');
-      if (this.onopen) {
-        this.onopen();
-      }
+      this.channels[name].onopen();
     };
 
     channel.onclose = () => {
@@ -72,14 +70,21 @@ export default class DataConnection {
     };
 
     channel.onmessage = (evt) => {
-      if (this.onmessage) {
-        this.onmessage(evt);
-      }
+      this.channels[name].onmessage(evt);
+    };
+
+    this.channels[name] = {
+      send: (msg) => {
+        channel.send(msg);
+      },
+      onopen: () => {},
+      onmessage: (msg) => {},
     };
   }
 
   _createWebSocket(offer) {
     const ws = new WebSocket(`ws://${document.location.host}`);
+    this._ws = ws;
 
     ws.onopen = () => {
       console.log('opened socket');

@@ -16,6 +16,10 @@
     <p>Your connection protocol is <strong>{{protocol}}</strong>. If you're on TCP, this demo presumedly will not work and you'll just have TCP-like semantics instead.</p>
 
     <p>Sent pings: {{pingCount}}</p>
+
+    <p v-if="pingsReceived !== null">
+      Server received pings: {{pingsReceived}} ({{pingsReceived / pingCount}})
+    </p>
   </div>
 
   <canvas id="canvas" width="600" height="300"></canvas>

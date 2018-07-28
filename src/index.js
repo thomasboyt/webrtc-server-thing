@@ -26,6 +26,14 @@ wss.on('connection', (ws) => {
     }
   };
 
+  let seenPings = [];
+
+  function getPingInfo() {
+    return {
+      pingsReceived: seenPings.length,
+    };
+  }
+
   peer.ondatachannel = (evt) => {
     console.log("hey there's a data channel now i guess");
 
@@ -39,7 +47,10 @@ wss.on('connection', (ws) => {
       if (typeof evt.data === 'string') {
         const [cmd, id] = evt.data.split(' ');
         if (cmd === 'ping') {
+          seenPings.push(id);
           channel.send(`pong ${id}`);
+        } else if (cmd === 'getPingInfo') {
+          channel.send(JSON.stringify(getPingInfo()));
         }
       }
     };
