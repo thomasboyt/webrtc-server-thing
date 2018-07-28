@@ -11,9 +11,11 @@
   <div id="app">
     <h1>UDP-like WebRTC Demo</h1>
 
-    <p>You leave this page running long enough, and you should see pings go missing and stay missing.</p>
-
     <p>Your connection protocol is <strong>{{protocol}}</strong>. If you're on TCP, this demo presumedly will not work and you'll just have TCP-like semantics instead.</p>
+
+    <p>The graph below represents each sent packet. A packet that got a "pong" response will appear in green. A packet that did not will show in red.</p>
+
+    <p>Once {{maxPackets}} packets have been sent, the server will be queried to see how many packets it actually received. This number may differ from the number of pongs received, since either part of the connection could fail.</p>
 
     <p>Sent pings: {{pingCount}}</p>
 
