@@ -5,6 +5,7 @@ const vm = new Vue({
   data: {
     pingCount: 0,
     outstandingPings: {},
+    protocol: null,
   },
 });
 
@@ -21,6 +22,10 @@ const pong = (id) => {
   delete vm.outstandingPings[id];
 };
 
+const setProtocol = (protocol) => {
+  vm.protocol = protocol.toUpperCase();
+};
+
 const channel = new DataChannel();
 
 channel.onopen = async () => {
@@ -32,7 +37,7 @@ channel.onopen = async () => {
   }, 100);
 
   const protocol = await channel.getConnectionProtocol();
-  console.log(protocol);
+  setProtocol(protocol);
 };
 
 channel.onmessage = (evt) => {
