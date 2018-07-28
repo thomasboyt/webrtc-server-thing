@@ -9,6 +9,12 @@
 </head>
 <body>
   <div id="app">
+    <h1>UDP-like WebRTC Demo</h1>
+
+    <p>You leave this page running long enough, and you should see pings go missing and stay missing.</p>
+
+    <p>If it seems weirdly stable, it may be that you have an incredibly blessed connection, or more likely, you're actually using a TCP connection. You can confirm this with <a href="chrome://net-internals">chrome://net-internals</a> on Chrome - check the active (bolded) candidate pair, and check which remote candidate is being used.</p>
+
     <p>Sent pings: {{pingCount}}</p>
 
     <p>Missing pings: </p>
