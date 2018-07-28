@@ -4,6 +4,7 @@ const vm = new Vue({
   el: '#app',
   data: {
     pingCount: 0,
+    pongCount: 0,
     pingsReceived: null,
     protocol: null,
   },
@@ -32,6 +33,7 @@ const ping = () => {
 };
 
 const pong = (id) => {
+  vm.pongCount += 1;
   updateNode(id, 'green');
 };
 
