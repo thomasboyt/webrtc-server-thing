@@ -17,9 +17,11 @@
 
     <p>Once {{maxPackets}} packets have been sent, the server will be queried to see how many packets it actually received. This number may differ from the number of pongs received, since either part of the connection could fail.</p>
 
-    <p>Sent pings: {{pingCount}}</p>
-
-    <p>Received pongs: {{pongCount}}</p>
+    <ul>
+      <li>Sent pings: {{pingCount}}</li>
+      <li>Received pongs: {{pongCount}}</li>
+      <li>Out of order pongs: {{outOfOrderCount}}</li>
+    </ul>
 
     <p v-if="pingsReceived !== null">
       Server received pings: {{pingsReceived}} ({{pingsReceived / pingCount}})

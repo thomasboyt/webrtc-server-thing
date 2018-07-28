@@ -13,6 +13,7 @@ const vm = new Vue({
     pingsReceived: null,
     protocol: null,
     maxPackets,
+    outOfOrderCount: 0,
   },
 });
 
@@ -24,6 +25,7 @@ function updateNode(idx, style) {
 }
 
 let nextPingId = 0;
+let lastPong = -1;
 const ping = () => {
   const id = nextPingId;
   nextPingId += 1;
@@ -34,6 +36,10 @@ const ping = () => {
 
 const pong = (id) => {
   vm.pongCount += 1;
+  if (pong < lastPong) {
+    vm.outOfOrderCount += 1;
+  }
+  lastPong = pong;
   updateNode(id, 'green');
 };
 
