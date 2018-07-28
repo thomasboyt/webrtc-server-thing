@@ -38,9 +38,11 @@ wss.on('connection', (ws) => {
     };
 
     channel.onmessage = (evt) => {
-      if (evt.data === 'ping') {
-        console.log('* ping');
-        channel.send('pong');
+      if (typeof evt.data === 'string') {
+        const [cmd, id] = evt.data.split(' ');
+        if (cmd === 'ping') {
+          channel.send(`pong ${id}`);
+        }
       }
     };
   };
@@ -57,8 +59,6 @@ wss.on('connection', (ws) => {
     for (let queuedCanddiate of candidateQueue) {
       peer.addIceCandidate(queuedCandidate);
     }
-
-    peer.createDataChannel('channel');
   }
 
   async function handleCandidate(msg) {

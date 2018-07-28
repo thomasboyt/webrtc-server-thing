@@ -1,29 +1,29 @@
-async function main() {
-  const peer = new RTCPeerConnection({
-    iceServers: [
-      {
-        urls: ['stun:stun.l.google.com:19302'],
-      },
-    ],
-  });
+class PingPong {
+  constructor() {
+    this.pingCount = 0;
+    this.pongCount = 0;
+    this._outstandingPings = new Set();
+  }
 
-  const pendingCandidates = [];
+  ping() {
+    const id = this.pingCount;
+    this._outstandingPings.add(id);
+    this.pingCount += 1;
+    return id;
+  }
 
-  peer.onicecandidate = (evt) => {
-    if (evt.candidate) {
-      console.log('on ice candidate');
-      pendingCandidates.push(evt.candidate);
-    }
-  };
+  pong(id) {
+    this._outstandingPings.delete(id);
+    this.pongCount += 1;
+  }
+}
 
-  peer.ondatachannel = (evt) => {
-    console.log('peer connection on data channel');
-    console.log(evt.channel);
-  };
+const pingPong = new PingPong();
 
+function createChannel(peer) {
   const channel = peer.createDataChannel('channel', {
-    // ordered: false,
-    // maxRetransmits: 0,
+    ordered: false,
+    maxRetransmits: 0,
   });
   channel.binaryType = 'arraybuffer';
 
@@ -31,8 +31,11 @@ async function main() {
     console.log('data channel ready');
 
     setInterval(() => {
-      channel.send('ping');
-    }, 1000);
+      for (let i = 0; i < 10; i += 1) {
+        const id = pingPong.ping();
+        channel.send(`ping ${id}`);
+      }
+    }, 100);
   };
 
   channel.onclose = function() {
@@ -44,8 +47,32 @@ async function main() {
   };
 
   channel.onmessage = function(evt) {
-    if (evt.data === 'pong') {
-      console.log('* pong');
+    if (typeof evt.data === 'string') {
+      const [cmd, id] = evt.data.split(' ');
+      if (cmd === 'pong') {
+        pingPong.pong(id);
+        console.log('pong', id);
+      }
+    }
+  };
+}
+
+async function main() {
+  const peer = new RTCPeerConnection({
+    iceServers: [
+      {
+        urls: ['stun:stun.l.google.com:19302'],
+      },
+    ],
+  });
+
+  createChannel(peer);
+
+  const pendingCandidates = [];
+
+  peer.onicecandidate = (evt) => {
+    if (evt.candidate) {
+      pendingCandidates.push(evt.candidate);
     }
   };
 
