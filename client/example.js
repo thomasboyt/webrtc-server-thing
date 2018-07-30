@@ -3,7 +3,9 @@ import DataConnection from './client.js';
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 const squareSize = 10;
-const maxPackets = (canvas.width / squareSize) * (canvas.height / squareSize);
+// const maxPackets = (canvas.width / squareSize) * (canvas.height / squareSize);
+const maxPackets = 100;
+const summaryTimeout = 100;
 
 const vm = new Vue({
   el: '#app',
@@ -14,8 +16,23 @@ const vm = new Vue({
     protocol: null,
     maxPackets,
     outOfOrderCount: 0,
+    latencies: [],
+  },
+
+  computed: {
+    latencySummary() {
+      const latencies = this.latencies;
+      latencies.sort((a, b) => b - a);
+      const high = latencies[0];
+      // not sure if this is the actual median
+      const median = latencies[Math.floor(latencies.length / 2)];
+      const mean = latencies.reduce((acc, n) => acc + n, 0) / latencies.length;
+      return `Median: ${median} / Mean: ${mean} / High: ${high}`;
+    },
   },
 });
+
+const pingTimes = {};
 
 function updateNode(idx, style) {
   ctx.fillStyle = style;
@@ -31,6 +48,7 @@ const ping = () => {
   nextPingId += 1;
   vm.pingCount += 1;
   updateNode(id, 'red');
+  pingTimes[id] = Date.now();
   return id;
 };
 
@@ -40,6 +58,7 @@ const pong = (id) => {
     vm.outOfOrderCount += 1;
   }
   lastPong = pong;
+  vm.latencies.push(Date.now() - pingTimes[id]);
   updateNode(id, 'green');
 };
 
@@ -56,7 +75,7 @@ co.channels.unreliable.onopen = async () => {
         clearInterval(interval);
         setTimeout(() => {
           co.channels.reliable.send('getPingInfo');
-        }, 3000);
+        }, summaryTimeout);
         return;
       }
       const id = ping();

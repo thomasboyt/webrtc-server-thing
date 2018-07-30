@@ -27,6 +27,13 @@ To figure out whether the server is working with symmetric NAT, find a network w
 
 - To test whether NAT is symmetric, use https://jsfiddle.net/p9af6hx3/1/show
 
-## Building
+## Run
 
-To build the WebRTC server:
+```
+npm install
+npm start
+```
+
+Then navigate to `localhost:3000`.
+
+Of course, by default, you should see perfect connections no matter what locally. You'll want to run this on a remote server to see a difference.

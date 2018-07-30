@@ -23,9 +23,15 @@
       <li>Out of order pongs: {{outOfOrderCount}}</li>
     </ul>
 
-    <p v-if="pingsReceived !== null">
-      Server received pings: {{pingsReceived}} ({{pingsReceived / pingCount}})
-    </p>
+    <div v-if="pingsReceived !== null">
+      <p>
+        Server received pings: {{pingsReceived}} ({{pingsReceived / pingCount}})
+      </p>
+      <p>
+        Latency summary: {{latencySummary}}
+      </p>
+    </div>
+
   </div>
 
   <canvas id="canvas" width="600" height="300"></canvas>
