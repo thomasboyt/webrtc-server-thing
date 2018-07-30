@@ -68,7 +68,7 @@ const setProtocol = (protocol) => {
 
 const co = new DataConnection();
 
-co.channels.unreliable.onopen = async () => {
+co.channels.unreliable.onopen = () => {
   let interval = setInterval(() => {
     for (let i = 0; i < 10; i += 1) {
       if (nextPingId >= maxPackets) {
@@ -83,8 +83,10 @@ co.channels.unreliable.onopen = async () => {
     }
   }, 100);
 
-  const protocol = await co.getConnectionProtocol();
-  setProtocol(protocol);
+  setTimeout(async () => {
+    const protocol = await co.getConnectionProtocol();
+    setProtocol(protocol);
+  }, 100);
 };
 
 co.channels.unreliable.onmessage = (evt) => {
