@@ -26,13 +26,17 @@ export default class DataConnection {
 
   async getConnectionProtocol() {
     const stats = await this._peer.getStats();
-    const connectionPairs = [...stats.values()]
-      .filter((entry) => entry.type === 'candidate-pair')
-      .filter((entry) => entry.state === 'succeeded');
+    const connectionPairs = [...stats.values()].filter(
+      (entry) => entry.type === 'candidate-pair'
+    );
+    const successPairs = connectionPairs.filter(
+      (entry) => entry.state === 'succeeded'
+    );
 
-    if (connectionPairs.length !== 1) {
-      console.log('too many or too few connection pairs');
+    if (successPairs.length !== 1) {
+      console.log('too many or too few success pairs');
       console.log(connectionPairs);
+      console.log([...stats.values()]);
       throw new Error();
     }
 
