@@ -3,9 +3,9 @@ import DataConnection from './client.js';
 const canvas = document.querySelector('#canvas');
 const ctx = canvas.getContext('2d');
 const squareSize = 10;
-// const maxPackets = (canvas.width / squareSize) * (canvas.height / squareSize);
-const maxPackets = 100;
-const summaryTimeout = 100;
+const maxPackets = (canvas.width / squareSize) * (canvas.height / squareSize);
+// const maxPackets = 100;
+const summaryTimeout = 1000;
 
 const vm = new Vue({
   el: '#app',
